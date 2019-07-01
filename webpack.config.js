@@ -1,11 +1,32 @@
 const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-    entry: './src/js/app.js',
+    entry: ['@babel/polyfill', './src/js/app.js'],
     output: {
-        path: path.resolve(__dirname, 'dist/js'),
-        filename: 'bundle.js'
+        // when using devServer it injects into the html and will look in the path below
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'js/bundle.js'
     },
-    mode: 'development'
-
+    devServer: {
+        contentBase: './dist'
+    },
+    plugins: [  // used to copy the html from src to dist
+        new HtmlWebpackPlugin({
+            filename: './index.html',
+            template: './src/index.html'
+        })
+    ],
+    module: {
+        rules: [
+            {
+                // look for all the .js files not in node_modules folder
+                test: /\.js$/,
+                exclude: /node_modules/,
+                use: {
+                    loader: 'babel-loader'
+                }
+            }
+        ]
+    }
 }
