@@ -1,4 +1,5 @@
 // Global app controller
+import "../style.css";
 import num from './test';
 
 const x = 233;

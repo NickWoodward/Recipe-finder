@@ -3,11 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
     entry: ['@babel/polyfill', './src/js/app.js'],
-    output: {
-        // when using devServer it injects into the html and will look in the path below
-        path: path.resolve(__dirname, 'dist'),
-        filename: 'js/bundle.js'
-    },
+
     devServer: {
         contentBase: './dist'
     },
@@ -26,6 +22,10 @@ module.exports = {
                 use: {
                     loader: 'babel-loader'
                 }
+            },
+            {
+                test: /\.css$/,
+                use: ['style-loader', 'css-loader']
             }
         ]
     }
