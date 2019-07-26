@@ -1,5 +1,5 @@
 const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const SpriteLoaderPlugin = require('svg-sprite-loader/plugin');
 
 module.exports = {
     entry: ['@babel/polyfill', './src/js/app.js'],
@@ -7,11 +7,8 @@ module.exports = {
     devServer: {
         contentBase: './dist'
     },
-    plugins: [  // used to copy the html from src to dist
-        new HtmlWebpackPlugin({
-            filename: './index.html',
-            template: './src/index.html'
-        })
+    plugins: [  
+        new SpriteLoaderPlugin()
     ],
     module: {
         rules: [
@@ -24,8 +21,29 @@ module.exports = {
                 }
             },
             {
-                test: /\.css$/,
-                use: ['style-loader', 'css-loader']
+                test: /\.html$/,
+                use: ['html-loader']
+            },
+            {
+                test: /\.(png|jpeg|jpg|gif)$/,
+                use: {
+                    loader: 'file-loader',
+                    options: {
+                        name: '[name].[hash:5].[ext]',
+                        outputPath: '/images/'
+                    }
+                }
+            },
+            {
+                test: /\.svg$/,
+                use: {
+                    loader: 'svg-sprite-loader',
+                    options: {
+                      extract: true,
+                      spriteFilename: 'sprite.[hash].svg',
+                      publicPath: '/svg/'
+                    }
+                }
             }
         ]
     }
