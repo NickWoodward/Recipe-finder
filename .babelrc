@@ -1,12 +1,11 @@
 {
     "presets": [
-        ["@babel/env", {
-            "targets": {
-                "browsers": [
-                    "last 5 versions",
-                    "ie >= 8"
-                ]
-            }
+        ["@babel/preset-env", {
+            // "debug": true,
+            "useBuiltIns": "usage",
+            "corejs": 3
+            
+            // Moved browser targets to browserlistrc
         }]
     ]
 }

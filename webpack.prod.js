@@ -6,6 +6,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
+const SpriteLoaderPlugin = require('svg-sprite-loader/plugin');
 
 module.exports = merge(common, {
     mode: "production",
@@ -34,7 +35,7 @@ module.exports = merge(common, {
     plugins: [
         new HtmlWebpackPlugin({
             filename: './index.html',
-            template: './src/index.html',
+            template: './src/index.ejs',
             favicon: './src/assets/favicon.png',
             minify: {
                 collapseWhitespace: true,
@@ -45,6 +46,7 @@ module.exports = merge(common, {
                 useShortDoctype: true
             }
         }),
+        new SpriteLoaderPlugin(),
         new MiniCssExtractPlugin({
             filename: "[name].[contentHash].css"
         }),

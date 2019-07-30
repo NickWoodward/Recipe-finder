@@ -1,15 +1,10 @@
 const path = require('path');
 const SpriteLoaderPlugin = require('svg-sprite-loader/plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
 
 module.exports = {
     entry: ['@babel/polyfill', './src/js/app.js'],
-
-    devServer: {
-        contentBase: './dist'
-    },
-    plugins: [  
-        new SpriteLoaderPlugin()
-    ],
     module: {
         rules: [
             {
@@ -30,7 +25,7 @@ module.exports = {
                     loader: 'file-loader',
                     options: {
                         name: '[name].[hash:5].[ext]',
-                        outputPath: '/images/'
+                        outputPath: './images/'
                     }
                 }
             },
