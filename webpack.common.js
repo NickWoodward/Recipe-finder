@@ -1,10 +1,8 @@
 const path = require('path');
 const SpriteLoaderPlugin = require('svg-sprite-loader/plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-
 
 module.exports = {
-    entry: ['@babel/polyfill', './src/js/app.js'],
+    entry: './src/js/app.js',
     module: {
         rules: [
             {
