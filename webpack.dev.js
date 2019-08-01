@@ -3,6 +3,8 @@ const common = require('./webpack.common');
 const merge = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const SpriteLoaderPlugin = require('svg-sprite-loader/plugin');
+const Dotenv = require('dotenv-webpack');
+
 
 module.exports = merge(common, {
     mode: "development",
@@ -29,7 +31,8 @@ module.exports = merge(common, {
             template: './src/index.ejs',
             favicon: './src/assets/favicon.png',
         }),
-        new SpriteLoaderPlugin()
+        new SpriteLoaderPlugin(),
+        new Dotenv()
     ]
 
 });

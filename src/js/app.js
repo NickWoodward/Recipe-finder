@@ -2,17 +2,16 @@
 import "../style.css";
 import '../assets/icons.svg';
 
-import dotenv from 'dotenv';
 import axios from 'axios';
 
-dotenv.config();
-
-
 async function getResults(query) {
-    // axios(`https://www.food2fork.com/api/search?key=${process.env.F2F_KEY}` )
-    console.log(process.env.F2F_KEY);
+    const result = await axios(`https://www.food2fork.com/api/search?key=${process.env.F2F_KEY}&q=${query}` )
+    const recipes = result.data.recipes;
+    // console.log(result);
+    console.log(recipes);
+
 }
 
-getResults();
+getResults('Pizza');
 
 

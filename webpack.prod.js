@@ -7,6 +7,8 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const SpriteLoaderPlugin = require('svg-sprite-loader/plugin');
+const Dotenv = require('dotenv-webpack');
+
 
 module.exports = merge(common, {
     mode: "production",
@@ -52,6 +54,7 @@ module.exports = merge(common, {
         }),
         new CleanWebpackPlugin({
             cleanOnceBeforeBuildPatterns: ['./js/*', './svg/*', './images/*']
-        })
+        }),
+        new Dotenv()
     ]
 });
