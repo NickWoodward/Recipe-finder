@@ -1,5 +1,9 @@
 import axios from 'axios';
 
+/**
+ * @class Search - Queries the food2fork API with a search string.
+ * @param {string} query - The search string entered.
+*/
 export default class Search {
     constructor(query) {
         this.query = query;
