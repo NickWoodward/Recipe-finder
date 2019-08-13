@@ -16,10 +16,12 @@ import axios from 'axios';
  */
 const state = {};
 
-const search = async () => {
+/**
+ * SEARCH CONTROLLER
+ */
+const searchController = async () => {
     // 1) Get query from view
     const query = searchView.getInput();
-    console.log(query);
 
     if(query) {
         // 2) New search object & add to state
@@ -43,13 +45,9 @@ const search = async () => {
     //TODO 'else' render something to say there are no results
 };
 
-// const r = new Recipe("47746");
-
-
-
 elements.searchForm.addEventListener('submit', e => {
     e.preventDefault(); // prevents refresh
-    search();
+    searchController();
 });
 
 
@@ -62,3 +60,26 @@ elements.searchResultsPages.addEventListener('click', e => {
     }
 
 });
+
+/**
+ * RECIPE CONTROLLER
+ */
+const recipeController = () => {
+    // Get the ID from the URL
+    const id = window.location.hash.replace('#', '');
+    console.log(id);
+
+    // if(id)
+        // Prepare the UI for changes
+
+        // Create new Recipe object
+
+        // Get recipe data
+
+        // Calc fake data
+
+        // Render recipe
+}
+
+
+ window.addEventListener('hashchange', recipeController);

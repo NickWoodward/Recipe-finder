@@ -1,23 +1,26 @@
 import axios from 'axios';
 
 export default class Recipe {
-    constructor(id) {
-        this.id = id;
+    constructor(uri) {
+        this.uri = uri;
     }
 
-    // async getRecipe() {
-    //     try {
-    //         const result = await axios(`${process.env.EDAMAM_BASE_URL}?app_key=${process.env.EDAMAM_KEY}&app_id=${process.env.EDAMAM_ID}&r=${this.id}`);
-    //         this.title = result.data.recipe.title;
-    //         this.author = result.data.recipe.publisher;
-    //         this.img = result.data.recipe.image_url;
-    //         this.url = result.data.recipe.source_url;
-    //         this.ingredients = result.data.recipe.ingredients;
-    //     } catch (err) {
-    //         console.log(err);
-    //         alert('Something went wrong');
-    //     }
-    // }
+    async getRecipe() {
+        try {
+            const recipeID = encodeURIComponent(`${process.env.EDAMAM_RECIPE_URL}${this.uri}`);
+            console.log(recipeID);
+            const result = await axios(`${process.env.EDAMAM_URL}?app_key=${process.env.EDAMAM_KEY}&app_id=${process.env.EDAMAM_ID}&r=${recipeID}`);
+            this.title = result.data[0].label;
+            this.author = result.data[0].source;
+            this.img = result.data[0].image;
+            this.url = result.data[0].url;
+            this.ingredients = result.data[0].ingredients;
+            console.log(this.title, this.ingredients);
+        } catch (err) {
+            console.log(err);
+            alert('Something went wrong');
+        }
+    }
 
     // Test method that just estimates cooking time based on # of ingredients
     // Every 3 ingredients, increase cooking time by 15 minutes
