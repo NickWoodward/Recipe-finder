@@ -12,7 +12,7 @@ export default class Search {
     async getResults() {
 
         try {
-            const res = await axios(`https://www.food2fork.com/api/search?key=${process.env.F2F_KEY}&q=${this.query}`)
+            const res = await axios(`http://cors-anywhere.herokuapp.com/https://www.food2fork.com/api/search?key=${process.env.F2F_KEY}&q=${this.query}`)
             this.recipes = res.data.recipes;
             
         } catch (err) {
