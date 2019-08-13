@@ -37,8 +37,10 @@ const search = async () => {
     // 5) Render results on UI
     console.log(state.search.recipes);
     clearLoader();
-    // if(state.search.recipes)
+    if(state.search.recipes)
         searchView.renderResults(state.search.recipes);
+    
+    //TODO 'else' render something to say there are no results
 };
 
 // const r = new Recipe("47746");

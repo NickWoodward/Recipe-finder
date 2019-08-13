@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 /**
- * @class Search - Queries the food2fork API with a search string.
+ * @class Search - Queries the EDAMAM API with a search string.
  * @param {string} query - The search string entered.
 */
 export default class Search {
@@ -12,8 +12,8 @@ export default class Search {
     async getResults() {
 
         try {
-            const res = await axios(`http://cors-anywhere.herokuapp.com/https://www.food2fork.com/api/search?key=${process.env.F2F_KEY}&q=${this.query}`)
-            this.recipes = res.data.recipes;
+            const res = await axios(`http://cors-anywhere.herokuapp.com/https://api.edamam.com/search?q=${this.query}&from=0&to=50&app_id=${process.env.EDAMAM_ID}&app_key=${process.env.EDAMAM_KEY}`)
+            this.recipes = res.data.hits.map(item => item.recipe);
             
         } catch (err) {
             alert(err);
