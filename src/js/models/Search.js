@@ -12,9 +12,9 @@ export default class Search {
     async getResults() {
 
         try {
-            const res = await axios(`http://cors-anywhere.herokuapp.com/https://api.edamam.com/search?q=${this.query}&from=0&to=50&app_id=${process.env.EDAMAM_ID}&app_key=${process.env.EDAMAM_KEY}`)
+            const res = await axios(`${process.env.EDAMAM_URL}?q=${this.query}&from=0&to=50&app_id=${process.env.EDAMAM_ID}&app_key=${process.env.EDAMAM_KEY}`)
+            // Change result structure [{Recipe, ...},{Recipe, ...},{Recipe, ...}] => [Recipe, Recipe, Recipe]
             this.recipes = res.data.hits.map(item => item.recipe);
-            
         } catch (err) {
             alert(err);
         }

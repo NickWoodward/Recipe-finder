@@ -19,7 +19,7 @@ export const clearResults = () => {
  * @param {number} page - The starting page number
  * @param {number} resultsPerPage - The desired # of results / page 
  */
-export const renderResults = ((recipes, page = 2, resultsPerPage = 5) => {
+export const renderResults = ((recipes, page = 1, resultsPerPage = 5) => {
     // Calculate the start and end point of results for pagination
     const start = (page - 1) * resultsPerPage;
     const end = page * resultsPerPage;
@@ -59,9 +59,11 @@ const limitRecipeTitle = (title, limit = 17) => {
  * @param {Recipe} recipe 
  */
 const renderRecipe = recipe => {
+    // Split the recipeURI to get the unique ID
+    const recipeID = recipe.uri.split('#')[1];
     const markup = `
         <li>
-            <a class="results__link results__link" href="${recipe.uri}">
+            <a class="results__link results__link" href="#${recipeID}">
                 <figure class="results__fig">
                     <img src="${recipe.image}" alt="Test">
                 </figure>
