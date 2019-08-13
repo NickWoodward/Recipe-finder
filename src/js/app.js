@@ -3,6 +3,7 @@ import "../style.css";
 import '../assets/icons.svg';
 
 import Search from './models/Search';
+import Recipe from './models/Recipe';
 import { elements, renderLoader, clearLoader } from './views/base';
 import * as searchView from './views/searchView';
 import axios from 'axios';
@@ -37,7 +38,11 @@ const search = async () => {
     console.log(state.search.recipes);
     clearLoader();
     searchView.renderResults(state.search.recipes);
-}
+};
+
+// const r = new Recipe("47746");
+
+
 
 elements.searchForm.addEventListener('submit', e => {
     e.preventDefault(); // prevents refresh
