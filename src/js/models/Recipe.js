@@ -8,14 +8,12 @@ export default class Recipe {
     async getRecipe() {
         try {
             const recipeID = encodeURIComponent(`${process.env.EDAMAM_RECIPE_URL}${this.uri}`);
-            console.log(recipeID);
             const result = await axios(`${process.env.EDAMAM_URL}?app_key=${process.env.EDAMAM_KEY}&app_id=${process.env.EDAMAM_ID}&r=${recipeID}`);
             this.title = result.data[0].label;
             this.author = result.data[0].source;
             this.img = result.data[0].image;
             this.url = result.data[0].url;
             this.ingredients = result.data[0].ingredients;
-            console.log(this.title, this.ingredients);
         } catch (err) {
             console.log(err);
             alert('Something went wrong');
