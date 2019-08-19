@@ -38,7 +38,6 @@ const searchController = async () => {
         await state.search.getResults();
 
         // 5) Render results on UI
-        console.log(state.search.recipes);
         clearLoader();
         if (state.search.recipes)
             searchView.renderResults(state.search.recipes);
@@ -83,11 +82,8 @@ const recipeController = async () => {
             // Get recipe data
             await state.recipe.getRecipe();
 
-            // Calc fake data
-            state.recipe.calcTime();
-            state.recipe.calcServings();
             // Render recipe
-            console.log(state.recipe);
+            state.recipe.parseIngredients().forEach(ingredient => console.log(ingredient));
         } catch (error) {
             console.log(error);
             alert('Error processing recipe');
