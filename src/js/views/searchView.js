@@ -92,14 +92,14 @@ const renderResultsBtns = (page, numResults, resultsPerPage) => {
     } else if (page === pages && pages > 1) {
         // Button to go to last page
         button = createButton(page, 'prev');
-    } else {
+    } else if(page < pages) {
         // Both buttons as a template string
         button = `
             ${createButton(page, 'prev')}
             ${createButton(page, 'next')}
         `;
     }
-    elements.searchResultsPages.insertAdjacentHTML('afterbegin', button);
+    if (button) elements.searchResultsPages.insertAdjacentHTML('afterbegin', button);
 };
 
 /**
