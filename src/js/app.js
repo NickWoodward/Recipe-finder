@@ -6,6 +6,7 @@ import Search from './models/Search';
 import Recipe from './models/Recipe';
 import { elements, renderLoader, clearLoader } from './views/base';
 import * as searchView from './views/searchView';
+import * as recipeView from './views/recipeView';
 import axios from 'axios';
 
 /** Global state of the app
@@ -26,26 +27,27 @@ const searchController = async () => {
     if (query) {
         // 2) New search object & add to state
         state.search = new Search(query);
-    }
 
-    // 3) Prepare UI for results
-    searchView.clearInput();
-    searchView.clearResults();
-    renderLoader(elements.searchResults);
 
-    try {
-        // 4) Search for recipes
-        await state.search.getResults();
+        // 3) Prepare UI for results
+        searchView.clearInput();
+        searchView.clearResults();
+        renderLoader(elements.searchResults);
 
-        // 5) Render results on UI
-        clearLoader();
-        if (state.search.recipes)
-            searchView.renderResults(state.search.recipes);
+        try {
+            // 4) Search for recipes
+            await state.search.getResults();
 
-    } catch (error) {
-        console.log(error);
-        alert('Something went wrong with the search');
-        clearLoader();
+            // 5) Render results on UI
+            clearLoader();
+            if (state.search.recipes)
+                searchView.renderResults(state.search.recipes);
+
+        } catch (error) {
+            console.log(error);
+            alert('Something went wrong with the search');
+            clearLoader();
+        }
     }
     //TODO 'else' render something to say there are no results
 };
@@ -75,15 +77,22 @@ const recipeController = async () => {
 
     if (id) {
         // Prepare the UI for changes
+        recipeView.clearRecipe();
+        renderLoader(elements.recipe)
+
+        // Highlight selected search item
+        if(state.search)
+            searchView.highlightSelected(id);
 
         // Create new Recipe object
         state.recipe = new Recipe(id);
         try {
             // Get recipe data
             await state.recipe.getRecipe();
-
-            // Render recipe
-            state.recipe.parseIngredients().forEach(ingredient => console.log(ingredient));
+            state.recipe.parseIngredients();
+            clearLoader();
+            state.recipe.viewParsedIngredients();
+            recipeView.renderRecipe(state.recipe);
         } catch (error) {
             console.log(error);
             alert('Error processing recipe');
@@ -95,4 +104,4 @@ const recipeController = async () => {
 
 // window.addEventListener('hashchange', recipeController);
 // window.addEventListener('load', recipeController);
-['hashchange','load'].forEach(event => window.addEventListener(event, recipeController));
+['hashchange', 'load'].forEach(event => window.addEventListener(event, recipeController));

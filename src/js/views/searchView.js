@@ -13,6 +13,14 @@ export const clearResults = () => {
     elements.searchResultsPages.innerHTML = '';
 };
 
+export const highlightSelected = id => {
+    const results = Array.from(document.querySelectorAll('.results__link'));
+    results.forEach(el => {
+        el.classList.remove('results__link--active');
+    });
+    document.querySelector(`a[href="#${id}"]`).classList.add('results__link--active');
+};
+
 /**
  * Iterate over and render a given number of the recipes from the API
  * @param {Array} recipes - The array of recipes from the API
