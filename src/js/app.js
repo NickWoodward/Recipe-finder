@@ -91,7 +91,7 @@ const recipeController = async () => {
             await state.recipe.getRecipe();
             state.recipe.parseIngredients();
             clearLoader();
-            state.recipe.viewParsedIngredients();
+            // state.recipe.viewParsedIngredients();
             recipeView.renderRecipe(state.recipe);
         } catch (error) {
             console.log(error);
