@@ -307,7 +307,7 @@
     .recipe__fig {
       height: 30rem;
       position: relative;
-      transform: scale(1.04) translateY(-1px);
+      /* transform: scale(1.04) translateY(-1px); */
       transform-origin: top; }
       .recipe__fig::before {
         content: '';
