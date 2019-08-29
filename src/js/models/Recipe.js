@@ -1,5 +1,4 @@
 import axios from 'axios';
-import Fraction from 'fraction.js';
 
 export default class Recipe {
     constructor(uri) {
@@ -10,7 +9,7 @@ export default class Recipe {
         try {
             const recipeID = encodeURIComponent(`${process.env.EDAMAM_RECIPE_URL}${this.uri}`);
             const result = await axios(`${process.env.EDAMAM_URL}?app_key=${process.env.EDAMAM_KEY}&app_id=${process.env.EDAMAM_ID}&r=${recipeID}`);
-            console.log(result);
+            console.log(result.data[0].ingredients);
             this.title = result.data[0].label;
             this.food = result.data[0].food;
             this.author = result.data[0].source;
@@ -40,6 +39,7 @@ export default class Recipe {
     parseIngredients() {
         const newIngredients = this.ingredients.map((ingredient, index) => {
             let result = {
+                displayType: '',
                 food: ingredient.food,
                 text: ingredient.text,
                 weight: ingredient.weight,
@@ -51,7 +51,7 @@ export default class Recipe {
             };
 
             // Structure options:
-            // 1: Quantity + Unit (Excluding 'gram')
+            // 1: Quantity + Unit(qty-unit) (Excluding 'gram')
             // 2: Quantity + Food Type (No unit available)
             // 3: Quantity + Food Type + Weight (Needed more specificity, eg: 2 chorizos (120g)) // Use weightFlag
             // 4: Food Type + Weight // Use weightFlag
@@ -63,7 +63,7 @@ export default class Recipe {
             if((!ingredient.measure || ingredient.measure === '<unit>') && exceptions.includes(ingredient.food)) {
                 ingredient.quantity = 0;
                 result.quantity = 0;
-                result.weightFlag = true;
+                result.weightFlag = 1;
             }
 
             // Check quantity available
@@ -72,24 +72,27 @@ export default class Recipe {
                 if (ingredient.measure !== "<unit>") {
                     // 1: Quantity + Unit
                     result.unit = ingredient.measure;
+                    result.displayType = 'qty-unit';
                 // 2:  Quantity + Food type
                 } else {
-                    // Some 
                     result.unit = ingredient.food;
                     result.weightFlag = true;
+                    result.displayType = 'food-unit'
 
                 } 
             // 5: If no available units
             } else if(!ingredient.quantity && !ingredient.weight) {
                 result.unit = 'to taste';
+                result.displayType = 'to-taste';
             } else {
                 // 4: Food Type plus Weight
                 result.unit = ingredient.food;
                 result.weightFlag = true;
+                result.displayType = 'food-weight'
             }
 
             console.log(
-                `${index}: Quantity: ${result.quantity}. Unit: ${result.unit}. Food: ${result.food} Weight: ${result.weight}. WeightFlag: ${result.weightFlag}`
+                `${index}: Display: ${result.displayType}. Quantity: ${result.quantity}. Unit: ${result.unit}. Food: ${result.food} Weight: ${result.weight}. WeightFlag: ${result.weightFlag}`
             );
 
             return result;

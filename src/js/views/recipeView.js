@@ -1,4 +1,5 @@
 import { elements } from './base';
+import Fraction from 'fraction.js';
 
 export const clearRecipe = () => {
     elements.recipe.innerHTML = '';
@@ -87,10 +88,26 @@ const createIngredient = ingredient => `
  * 
  */
 const parseIngredient = ingredient => {
-    if(!ingredient.weightFlag) return `${ingredient.quantity} ${ingredient.unit} of ${ingredient.food}`;
-    else if(ingredient.quantity) return `${ingredient.quantity} of ${ingredient.food} (${ingredient.weight}g)`;
-    else return `${ingredient.food} (${ingredient.weight}g)`
+    // Parse measurements to take plurals and language edge cases into account
+    ingredient.unit = parseMeasurement(ingredient.quantity, ingredient.unit);
 
+    // Format numbers: .1 dp for weight, into {Fraction} for quantity
+    if(ingredient.quantity) ingredient.quantity = formatNum(ingredient.quantity, 'qty');
+    if(ingredient.weight) ingredient.weight = formatNum(ingredient.weight, 'weight');
+
+    /**
+     * - 'qty-unit': Display the quantity of the food, plus the unit provided by the API
+     * - 'food-unit': Display the quantity, food type itself as it is the unit of measurement, and weight. 
+     * - 'food-weight': Display the food type and weight. Differs from food-unit in that there's no quantity available either.
+     * - 'to-taste': No quantity or weight info provided.
+     **/
+    switch(ingredient.displayType) {
+        case 'qty-unit' : return `${ingredient.quantity} ${ingredient.unit} of ${ingredient.food}`;
+        case 'food-unit' : return `${ingredient.quantity} ${ingredient.unit} (${ingredient.weight}g)`; // deal with formatting probs here
+        case 'to-taste' : return 'To taste';
+        case 'food-weight' : return `${ingredient.food} ${ingredient.weight}g`;
+        default: console.log('Unknown');
+    } 
 };
             // // Edit for plurals and language edge cases
             // // Order matters, parseMeasurement logic relies on a number, formatNum can return { Fraction }
@@ -98,60 +115,46 @@ const parseIngredient = ingredient => {
             // result.quantity = this.formatNum(result.quantity, 'qty');
             // result.weight = this.formatNum(result.weight, 'weight');
 
-// parseMeasurement(quantity, measurement) {
-//     // Ignore <unit> as a measurement
-//     if (measurement === '<unit>' || !quantity) return measurement;
-//     // If the quantity is > 1, make the measurement plural
-//     else if (quantity > 1) {
-//         // Add unusual cases here
-//         switch (measurement) {
-//             case 'leaf': return 'leaves';
-//             default: return `${measurement}s`;
-//         }
-//     } else {
-//         return measurement;
-//     }
-// }
+const parseMeasurement = (quantity, measurement) => {
+    // Ignore <unit> as a measurement
+    if (measurement === '<unit>' || !quantity) return measurement;
+    // If the quantity is > 1 and doesn't already end with an 's', make the measurement plural
+    else if ((quantity > 1) && measurement.charAt(measurement.length - 1) !== 's') {
+        // Add unusual cases here
+        switch (measurement) {
+            case 'leaf': return 'leaves';
+            default: return `${measurement}s`;
+        }
+    // If the quantity < 1: Eg: 1/3 of a cup
+    } else if(quantity < 1) {
+        return `of a ${measurement}`;
+    // If the quantity is .5: Eg: 1/2 a cup
+    } else if(quantity === 0.5){
+        return `a ${measurement}`;
+    } else {
+        return measurement;
+    }
+}
 
-// // 
-// formatNum(num, type) {
-//     // If type is a weight, use toFixed to .1
-//     // If type is quantity, use the fraction.js package
-//     if (type === 'weight') {
-//         num = num.toFixed(1);
-//         // Remove the decimal if it's 0 
-//         // 428.0 > 4280 > 0 > 0 === true
-//         // 428.1 > 4281 > 1 > .1 === false
-//         if (num * 10 % 10 / 10 === 0) return parseInt(num).toFixed(0);
-//         return parseInt(num, 10);
-//     } else if (type == 'qty') {
-//         const fraction = new Fraction(num).simplify(0.001);
-//         return fraction.toFraction(true);
-//     }
-//     return parseInt(num, 10);
-// }
+const formatNum = (num, type) => {
+    // If type is a weight, use toFixed to .1
+    // If type is quantity, use the fraction.js package
+    if (type === 'weight') {
+        num = num.toFixed(1);
+        // Remove the decimal if it's 0 
+        // 428.0 > 4280 > 0 > 0 === true
+        // 428.1 > 4281 > 1 > .1 === false
+        if (num * 10 % 10 / 10 === 0) {
+            return parseInt(num).toFixed(0);
+        } else {
+            return parseInt(num, 10);
+        }
+    } else if (type == 'qty') {
+        const fraction = new Fraction(num).simplify(0.001);
+        return fraction.toFraction(true);
+    }
+    return parseInt(num, 10);
+};
 
 
-            // // Ideally use the quantity plus the unit of measurement, but if ingredient.measure is gram use ingredient.weight instead
-            // // If there's no unit of measurement but there is a quantity, use ingredient.quantity + ingredient.food 
-            // if (ingredient.quantity && ingredient.measure !== "gram") {
-            //     // NB: a quantity of '1' with a <unit> type is usually suspect (1 black pepper, 1 milk chocolate etc), add gram weight + food type
-            //     // 'Egg' is an exception (1 egg), and black pepper has to be added as an additional exception as the quantity can be the number of pinches
-            //     // 
-            //     if (ingredient.measure === "<unit>") {
-            //         result.description = ((ingredient.quantity === 1 && ingredient.food.toLowerCase() !== 'egg') || ingredient.food.indexOf('black pepper') > -1) ?
-            //             `${ingredient.food} (${this.formatNum(ingredient.weight, 'weight')}g)` : `${this.formatNum(ingredient.quantity, 'qty')} ${ingredient.food} (${this.formatNum(ingredient.weight, 'weight')}g)`;
-            //     }
-            //     // Else use quantity + the parsed unit
-            //     else {
-            //         result.description = `${this.formatNum(ingredient.quantity, 'qty')} ${ingredient.measure} of ${ingredient.food}`;
-            //     }
-            // }
-            // // If there's no quantity or weight, use 'to taste'
-            // else if (!ingredient.quantity && !ingredient.weight) {
-            //     result.description = `to taste`
-            // }
-            // // Else just use the gram weight
-            // else {
-            //     result.description = `${ingredient.food} (${this.formatNum(ingredient.weight, 'weight')}g)`
-            // }
+
