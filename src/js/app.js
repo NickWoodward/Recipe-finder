@@ -4,9 +4,11 @@ import '../assets/icons.svg';
 
 import Search from './models/Search';
 import Recipe from './models/Recipe';
+import ShoppingList from './models/ShoppingList';
 import { elements, renderLoader, clearLoader } from './views/base';
 import * as searchView from './views/searchView';
 import * as recipeView from './views/recipeView';
+import * as shoppingListView from './views/shoppingListView';
 import axios from 'axios';
 
 /** Global state of the app
@@ -95,13 +97,30 @@ const recipeController = async () => {
             clearLoader();
 
             recipeView.renderRecipe(state.recipe);
+
         } catch (error) {
             console.log(error);
             alert('Error processing recipe');
         }
 
     }
-}
+};
+
+/**
+ * SHOPPING LIST CONTROLLER
+ */
+
+const shoppingListController = () => {
+    // Create a new list if there isn't one
+    if(!state.shoppingList) state.shoppingList = new ShoppingList();
+
+    // Add each ingredient to the list
+    state.recipe.parsedIngredients.forEach(ing => {
+        const item = state.shoppingList.addItem(state.recipe.servings, ing.qtyPerServing, ing.weightPerServing, ing.quantity, ing.unit, ing.food);
+        shoppingListView.renderItem(item);
+    });
+
+};
 
 
 // window.addEventListener('hashchange', recipeController);
@@ -116,11 +135,13 @@ elements.recipe.addEventListener('click', e => {
         recipeView.clearRecipe();
         recipeView.renderRecipe(state.recipe);
 
-    }
-    if(e.target.matches('.btn-increase, .btn-increase *')) {
+    } else if(e.target.matches('.btn-increase, .btn-increase *')) {
         // Increase serving
         state.recipe.updateServings(1);
         recipeView.clearRecipe();
         recipeView.renderRecipe(state.recipe);
+    } else if(e.target.matches('.recipe__btn--add, .recipe__btn--add *')) {
+        shoppingListController();
     }
 });
+

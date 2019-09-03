@@ -50,7 +50,7 @@ export default class Recipe {
                 // Unit will be ingredient.measurement or ingredient.food type depending on the item and if quantity is available
                 unit: ''
             };
-            console.log(ingredient)
+
             // Structure options:
             // 1: Quantity + Unit(qty-unit) (Excluding 'gram')
             // 2: Quantity + Food Type (No unit available)
