@@ -9,47 +9,48 @@ export default class Recipe {
         try {
             const recipeID = encodeURIComponent(`${process.env.EDAMAM_RECIPE_URL}${this.uri}`);
             const result = await axios(`${process.env.EDAMAM_URL}?app_key=${process.env.EDAMAM_KEY}&app_id=${process.env.EDAMAM_ID}&r=${recipeID}`);
-            console.log(result.data[0].ingredients);
             this.title = result.data[0].label;
-            this.food = result.data[0].food;
             this.author = result.data[0].source;
             this.img = result.data[0].image;
             this.url = result.data[0].url;
             this.ingredients = result.data[0].ingredients;
             this.servings = result.data[0].yield;
-
         } catch (err) {
             console.log(err);
             alert('Something went wrong');
         }
     }
 
-    // updateServings(type){
-    //     // Servings
-    //     const newServings = type ==='dec'? this.servings-- : this.servings++;
-    //     // Ingredients
+    updateServings(amount){
+        // Guard against servings < 1
+        if(amount === -1 && this.servings === 1) return;
+        this.servings = amount === -1? --this.servings : ++this.servings;
+        this.updateIngredientQuantities();
+    }
 
-    //     this.servings = newServings;
-    // }
-    viewParsedIngredients() {
-        console.log(this.parsedIngredients);
+    updateIngredientQuantities() {
+        this.parsedIngredients.forEach(ingredient => {
+            ingredient.quantity = ingredient.qtyPerServing * this.servings;
+            ingredient.weight = ingredient.weightPerServing * this.servings;
+        });
     }
 
     // Parse ingredients
     parseIngredients() {
+
         const newIngredients = this.ingredients.map((ingredient, index) => {
             let result = {
+                qtyPerServing: ingredient.quantity / this.servings,
+                weightPerServing: ingredient.weight / this.servings,
                 displayType: '',
                 food: ingredient.food,
                 text: ingredient.text,
                 weight: ingredient.weight,
                 quantity: ingredient.quantity,
                 // Unit will be ingredient.measurement or ingredient.food type depending on the item and if quantity is available
-                unit: '',
-                // Weight flag shows need to add extra specificity to the quantity and food type (eg: 2 chorizos => 2 chorizos (120g))
-                weightFlag: false
+                unit: ''
             };
-
+            console.log(ingredient)
             // Structure options:
             // 1: Quantity + Unit(qty-unit) (Excluding 'gram')
             // 2: Quantity + Food Type (No unit available)
@@ -57,13 +58,12 @@ export default class Recipe {
             // 4: Food Type + Weight // Use weightFlag
             // 5: Ouput 'to taste'
 
-            // Reset the quantity to '0' and set the weightFlag if there's no measurement & it's something that shouldn't have a quantity
+            // Reset the quantity to '0' if there's no measurement & it's something that shouldn't have a quantity
             // Eg: 1 black pepper, 1 yellow cake, 1 dark chocolate etc don't make sense
-            const exceptions = ['black pepper', 'yellow cake', 'chocolate'];
-            if((!ingredient.measure || ingredient.measure === '<unit>') && exceptions.includes(ingredient.food)) {
+            const exceptions = ['cheddar', 'lemonade', 'black pepper', 'yellow cake', 'chocolate', 'milk chocolate', 'monterey jack', 'grapes', 'pie crust', 'pizza dough', 'fresh ginger', 'peppercorns'];
+            if((!ingredient.measure || ingredient.measure === '<unit>') && exceptions.includes(ingredient.food.toLowerCase())) {
                 ingredient.quantity = 0;
                 result.quantity = 0;
-                result.weightFlag = 1;
             }
 
             // Check quantity available
@@ -91,14 +91,46 @@ export default class Recipe {
                 result.displayType = 'food-weight'
             }
 
-            console.log(
-                `${index}: Display: ${result.displayType}. Quantity: ${result.quantity}. Unit: ${result.unit}. Food: ${result.food} Weight: ${result.weight}. WeightFlag: ${result.weightFlag}`
-            );
-
             return result;
         });
 
         this.parsedIngredients = newIngredients;
     }
 
+    // Problem API data:
+
+    /** 
+     * Pickled Grapes
+     * "1 red grapes", food-unit
+     * API: qty 1, measure <unit>, food red grapes, weight 4.9
+     * Parsed: qty 1, unit red grapes, food red grapes, weight 4.9
+     */
+
+     /** 
+      * 
+      * "1 Milk Chocolate", food-unit
+      * API: qty 1, measure <unit>, food Milk Chocolate, weight 7
+      * Parsed: qty 1, unit Milk Chocolate, food Milk Chocolate, weight 7
+      */
+
+      /**
+       * 
+       * "6 gelatines (42g)"
+       * API: qty 6, measure <unit>, food gelatine, weight 42
+       * Parsed: qty 6, unit gelatine, food gelatine, weight 42
+       */
+
+       /**
+        * Shaved Asparagus Pizza
+        * 1 pizza dough (228g)
+        * API: qty 1,  measure <unit>, food pizza dough, weight 228
+        * Parsed: qty 1, unit pizza dough, food pizza dough, weight 228 
+        */
+
+        /**
+         * Pizza pizzas
+         * "1 monterey jack (28g)"
+         * API: qty 1, measure <unit>, food monterey jack, weight 28
+         * Parsed: qty 1, unit monteray jack, food monteray jack, weight 28
+         */
 }

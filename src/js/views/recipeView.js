@@ -6,6 +6,7 @@ export const clearRecipe = () => {
 };
 
 export const renderRecipe = recipe => {
+
     const markup = `
         <figure class="recipe__fig">
             <img src="${recipe.img}" alt="${recipe.title}" class="recipe__img">
@@ -28,12 +29,12 @@ export const renderRecipe = recipe => {
                 <span class="recipe__info-data recipe__info-data--people">${recipe.servings}</span>
                 <span class="recipe__info-text"> servings</span>
                 <div class="recipe__info-buttons">
-                    <button class="btn-tiny">
+                    <button class="btn-tiny btn-decrease">
                         <svg>
                             <use href="#icons_icon-circle-with-minus"></use>
                         </svg>
                     </button>
-                    <button class="btn-tiny">
+                    <button class="btn-tiny btn-increase">
                         <svg>
                             <use href="#icons_icon-circle-with-plus"></use>
                         </svg>
@@ -49,6 +50,7 @@ export const renderRecipe = recipe => {
             <div class="recipe__ingredients">
             <ul class="recipe__ingredient-list">
                 ${recipe.parsedIngredients.map(el => createIngredient(el)).join('')}
+
             </ul>
             <button class="btn-small recipe__btn">
                 <svg class="search__icon">
@@ -73,14 +75,16 @@ export const renderRecipe = recipe => {
     elements.recipe.insertAdjacentHTML('afterbegin', markup);
 };
 
-const createIngredient = ingredient => `
+const createIngredient = (ingredient, index) => {    
+    return `
     <li class="recipe__item">
         <svg class="recipe__icon">
             <use href="#icons_icon-check"></use>
         </svg>
         <div class="recipe__ingredient">${parseIngredient(ingredient)}</div>
     </li>  
-`;
+`
+};
 
 /**
  * Create the string to be displayed based on the data available
@@ -88,12 +92,19 @@ const createIngredient = ingredient => `
  * 
  */
 const parseIngredient = ingredient => {
+    // Shallow copy of ingredient to preserve original
+    const result = {...ingredient};
+
+    // Make all units and food types lower case
+    result.unit = result.unit.toLowerCase();
+    result.food = result.food.toLowerCase();
+
     // Parse measurements to take plurals and language edge cases into account
-    ingredient.unit = parseMeasurement(ingredient.quantity, ingredient.unit);
+    result.unit = parseMeasurement(result.quantity, result.unit);
 
     // Format numbers: .1 dp for weight, into {Fraction} for quantity
-    if(ingredient.quantity) ingredient.quantity = formatNum(ingredient.quantity, 'qty');
-    if(ingredient.weight) ingredient.weight = formatNum(ingredient.weight, 'weight');
+    if (result.quantity) result.quantity = formatNum(result.quantity, 'qty');
+    if (result.weight) result.weight = formatNum(result.weight, 'weight');
 
     /**
      * - 'qty-unit': Display the quantity of the food, plus the unit provided by the API
@@ -101,21 +112,18 @@ const parseIngredient = ingredient => {
      * - 'food-weight': Display the food type and weight. Differs from food-unit in that there's no quantity available either.
      * - 'to-taste': No quantity or weight info provided.
      **/
-    switch(ingredient.displayType) {
-        case 'qty-unit' : return `${ingredient.quantity} ${ingredient.unit} of ${ingredient.food}`;
-        case 'food-unit' : return `${ingredient.quantity} ${ingredient.unit} (${ingredient.weight}g)`; // deal with formatting probs here
-        case 'to-taste' : return 'To taste';
-        case 'food-weight' : return `${ingredient.food} ${ingredient.weight}g`;
+    switch (result.displayType) {
+        case 'qty-unit': return `${result.quantity} ${result.unit} of ${result.food}`;
+        //NB: Wrong?
+        case 'food-unit': return `${result.quantity} ${result.unit} (${result.weight}g)`; // deal with formatting probs here
+        case 'to-taste': return `${capitalise(result.food)} (To taste)`;
+        case 'food-weight': return `${capitalise(result.food)} (${result.weight}g)`;
         default: console.log('Unknown');
-    } 
+    }
 };
-            // // Edit for plurals and language edge cases
-            // // Order matters, parseMeasurement logic relies on a number, formatNum can return { Fraction }
-            // result.unit = this.parseMeasurement(result.quantity, result.unit);
-            // result.quantity = this.formatNum(result.quantity, 'qty');
-            // result.weight = this.formatNum(result.weight, 'weight');
 
 const parseMeasurement = (quantity, measurement) => {
+
     // Ignore <unit> as a measurement
     if (measurement === '<unit>' || !quantity) return measurement;
     // If the quantity is > 1 and doesn't already end with an 's', make the measurement plural
@@ -125,12 +133,12 @@ const parseMeasurement = (quantity, measurement) => {
             case 'leaf': return 'leaves';
             default: return `${measurement}s`;
         }
-    // If the quantity < 1: Eg: 1/3 of a cup
-    } else if(quantity < 1) {
-        return `of a ${measurement}`;
-    // If the quantity is .5: Eg: 1/2 a cup
-    } else if(quantity === 0.5){
+        // If the quantity is .5: Eg: 1/2 a cup
+    } else if (quantity === 0.5) {
         return `a ${measurement}`;
+        // If the quantity < 1: Eg: 1/3 of a cup
+    } else if (quantity < 1) {
+        return `of a ${measurement}`;
     } else {
         return measurement;
     }
@@ -140,7 +148,7 @@ const formatNum = (num, type) => {
     // If type is a weight, use toFixed to .1
     // If type is quantity, use the fraction.js package
     if (type === 'weight') {
-        num = num.toFixed(1);
+        num = parseInt(num).toFixed(1);
         // Remove the decimal if it's 0 
         // 428.0 > 4280 > 0 > 0 === true
         // 428.1 > 4281 > 1 > .1 === false
@@ -154,6 +162,11 @@ const formatNum = (num, type) => {
         return fraction.toFraction(true);
     }
     return parseInt(num, 10);
+};
+
+const capitalise = word => {
+    if(word)
+        return word.charAt(0).toUpperCase() + word.slice(1);
 };
 
 

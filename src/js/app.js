@@ -57,7 +57,7 @@ elements.searchForm.addEventListener('submit', e => {
     searchController();
 });
 
-
+ 
 elements.searchResultsPages.addEventListener('click', e => {
     const btn = e.target.closest('.btn-inline');
     if (btn) {
@@ -89,9 +89,11 @@ const recipeController = async () => {
         try {
             // Get recipe data
             await state.recipe.getRecipe();
+ 
             state.recipe.parseIngredients();
+
             clearLoader();
-            // state.recipe.viewParsedIngredients();
+
             recipeView.renderRecipe(state.recipe);
         } catch (error) {
             console.log(error);
@@ -105,3 +107,20 @@ const recipeController = async () => {
 // window.addEventListener('hashchange', recipeController);
 // window.addEventListener('load', recipeController);
 ['hashchange', 'load'].forEach(event => window.addEventListener(event, recipeController));
+
+// Handling recipe button clicks
+elements.recipe.addEventListener('click', e => {
+    if(e.target.matches('.btn-decrease, .btn-decrease *')) {
+        // Decrease serving
+        state.recipe.updateServings(-1);
+        recipeView.clearRecipe();
+        recipeView.renderRecipe(state.recipe);
+
+    }
+    if(e.target.matches('.btn-increase, .btn-increase *')) {
+        // Increase serving
+        state.recipe.updateServings(1);
+        recipeView.clearRecipe();
+        recipeView.renderRecipe(state.recipe);
+    }
+});
