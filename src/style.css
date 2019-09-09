@@ -437,13 +437,15 @@
       font-weight: 700; }
   
   .shopping {
-    padding: 3rem 4rem;
+    padding: 3rem 2rem;
     display: flex;
-    flex-direction: column; }
+    flex-direction: column;
+    overflow: hidden; }
     .shopping__list {
+      padding: 0 2rem;
       list-style: none;
-      max-height: 77rem;
-      }
+      max-height: 85rem;
+      overflow-y: scroll; }
     .shopping__item {
       display: flex;
       align-items: flex-start;

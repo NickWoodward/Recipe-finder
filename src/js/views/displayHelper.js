@@ -1,5 +1,31 @@
 import Fraction from 'fraction.js';
 
+/** 
+ * Limit each recipe title's length
+ * @param {string} title - The recipe title
+ * @param {number} limit - Length that prevents title spanning 2 lines 
+ * @return {string} - The shortened title
+ */
+export const limitRecipeTitle = (title, limit = 17) => {
+    const newTitle = [];
+    let total = 0;
+
+    if (title.length > limit) {
+        for (let word of title.split(' ')) {
+            // If the next word in the array doesn't exceed the limit
+            // when added to the total length, push to new title array
+            if (word.length + total < limit) {
+                newTitle.push(word);
+                total += word.length;
+            } else {
+                break;
+            }
+        }
+        return `${newTitle.join(' ')}...`
+    }
+    return title;
+};
+
 export const parseMeasurement = (quantity, measurement) => {
 
     // Ignore <unit> as a measurement

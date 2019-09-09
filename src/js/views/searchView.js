@@ -1,4 +1,5 @@
 import { elements } from './base';
+import * as displayHelper from './displayHelper';
 
 export const getInput = () => elements.searchInput.value;
 
@@ -18,7 +19,7 @@ export const highlightSelected = id => {
     results.forEach(el => {
         el.classList.remove('results__link--active');
     });
-    document.querySelector(`a[href="#${id}"]`).classList.add('results__link--active');
+    document.querySelector(`.results__link[href="#${id}"]`).classList.add('results__link--active');
 };
 
 /**
@@ -36,32 +37,6 @@ export const renderResults = ((recipes, page = 1, resultsPerPage = 5) => {
     renderResultsBtns(page, recipes.length, resultsPerPage);
 });
 
-/** 
- * Limit each recipe title's length
- * @param {string} title - The recipe title
- * @param {number} limit - Length that prevents title spanning 2 lines 
- * @return {string} - The shortened title
- */
-const limitRecipeTitle = (title, limit = 17) => {
-    const newTitle = [];
-    let total = 0;
-
-    if (title.length > limit) {
-        for (let word of title.split(' ')) {
-            // If the next word in the array doesn't exceed the limit
-            // when added to the total length, push to new title array
-            if (word.length + total < limit) {
-                newTitle.push(word);
-                total += word.length;
-            } else {
-                break;
-            }
-        }
-        return `${newTitle.join(' ')}...`
-    }
-    return title;
-};
-
 /**
  * Insert HTML for recipe into the search results list
  * @param {Recipe} recipe 
@@ -76,7 +51,7 @@ const renderRecipe = recipe => {
                     <img src="${recipe.image}" alt="Test">
                 </figure>
                 <div class="results__data">
-                    <h4 class="results__name">${limitRecipeTitle(recipe.label)}</h4>
+                    <h4 class="results__name">${displayHelper.limitRecipeTitle(recipe.label)}</h4>
                     <p class="results__author">${recipe.source}</p>
                 </div>
             </a>

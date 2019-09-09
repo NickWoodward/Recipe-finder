@@ -1,12 +1,18 @@
 import { elements } from './base';
 import * as displayHelper from './displayHelper';
 
+export const toggleLikeBtn = isLiked => {
+    //#icons_icon-heart-outlined
+    const iconString = isLiked? 'icon-heart':'icon-heart-outlined';
+    document.querySelector('.recipe__love use').setAttribute('href', `#icons_${iconString}`);
+
+};
 
 export const clearRecipe = () => {
     elements.recipe.innerHTML = '';
 };
 
-export const renderRecipe = recipe => {
+export const renderRecipe = (recipe, isLiked) => {
 
     const markup = `
         <figure class="recipe__fig">
@@ -44,7 +50,7 @@ export const renderRecipe = recipe => {
             </div>
             <button class="recipe__love">
                 <svg class="header__likes">
-                    <use href="#icons_icon-heart-outlined"></use>
+                    <use href="#icons_icon-heart${isLiked? "":"-outlined"}"></use>
                 </svg>
             </button>
             </div>

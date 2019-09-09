@@ -5,7 +5,7 @@ export default class List {
         this.items = [];
     }
 
-    addItem(servings, qtyPerServing, weightPerServing, qty, unit, food) {
+    addItem(servings, qtyPerServing, weightPerServing, qty, unit, food, weight) {
         const item = {
             id: uniqid(),
             // qtyPer and weightPer used for increment steps in the view
@@ -13,7 +13,8 @@ export default class List {
             weightPerServing,
             qty,
             unit,
-            food
+            food,
+            weight
         }
         this.items.push(item);
         return item;
@@ -25,8 +26,9 @@ export default class List {
         this.items.splice(index, 1)
     }
 
-    updateAmount(id, newAmount) {
+    updateWeight(id, newAmount) {
         const item = this.items.find(item => item.id === id);
+        if(item) item.weight = newAmount;
         console.log('finish update amount');
     }
 }
