@@ -4,7 +4,7 @@ import { elements } from './base';
 export const renderLike = item => {
     const markup = `
         <li>
-            <a class="likes__link" href="${item.uri}">
+            <a class="likes__link" href="${item.id}">
                 <figure class="likes__fig">
                     <img src="${item.img}" alt="${item.title}">
                 </figure>
@@ -20,9 +20,8 @@ export const renderLike = item => {
 };
 
 export const deleteLike = id => {
-    console.log(document.querySelector(`.likes__link[href*="${id}"]`));
-    // const item = document.querySelector(`.likes__link[href*="${id}"]`).parentElement;
-    // console.log(item);
+    const item = document.querySelector(`.likes__link[href*="${id}"]`).parentElement;
+    if(item) item.parentElement.removeChild(item);
 };
 
 export const toggleLikesMenu = numLikes => {
