@@ -4,7 +4,7 @@ import { elements } from './base';
 export const renderLike = item => {
     const markup = `
         <li>
-            <a class="likes__link" href="${item.id}">
+            <a class="likes__link" href="#${item.id}">
                 <figure class="likes__fig">
                     <img src="${item.img}" alt="${item.title}">
                 </figure>

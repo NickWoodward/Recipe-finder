@@ -19,4 +19,12 @@ export default class Search {
             alert(err);
         }
     }
+
+    getQuery() {
+        return this.query;
+    }
+
+    persistSearch() {
+        localStorage.setItem('search', JSON.stringify(this.query));
+    }
 }

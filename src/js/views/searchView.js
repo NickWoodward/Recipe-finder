@@ -19,7 +19,12 @@ export const highlightSelected = id => {
     results.forEach(el => {
         el.classList.remove('results__link--active');
     });
-    document.querySelector(`.results__link[href="#${id}"]`).classList.add('results__link--active');
+    // Check if recipe to highlight is in the searchlist
+    const inList = results.includes(el => {
+        el.getAttribute('href') === `#${id}`;
+    });
+    if(inList)
+        document.querySelector(`.results__link[href="#${id}"]`).classList.add('results__link--active');
 };
 
 /**

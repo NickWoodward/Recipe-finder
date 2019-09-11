@@ -22,21 +22,26 @@ import axios from 'axios';
 const state = {};
 // Testing
 window.state = state;
-// Create a likes list and set its initial view
-state.likes = new Likes();
-likesView.toggleLikesMenu(state.likes.getNumLikes());
+
 
 /**
  * SEARCH CONTROLLER
  */
 const searchController = async () => {
-    // 1) Get query from view
-    const query = searchView.getInput();
+    // 1) Get query from the view
+    let query = searchView.getInput();
+
+    // If no input, but a search object exists in local storage, get that query
+    if(!query && state.search) {
+        query = state.search.getQuery();
+    }
 
     if (query) {
         // 2) New search object & add to state
         state.search = new Search(query);
 
+        // Persist search query
+        state.search.persistSearch();
 
         // 3) Prepare UI for results
         searchView.clearInput();
@@ -66,7 +71,7 @@ elements.searchForm.addEventListener('submit', e => {
     searchController();
 });
 
- 
+
 elements.searchResultsPages.addEventListener('click', e => {
     const btn = e.target.closest('.btn-inline');
     if (btn) {
@@ -90,7 +95,7 @@ const recipeController = async () => {
         renderLoader(elements.recipe)
 
         // Highlight selected search item
-        if(state.search)
+        if (state.search)
             searchView.highlightSelected(id);
 
         // Create new Recipe object
@@ -98,7 +103,7 @@ const recipeController = async () => {
         try {
             // Get recipe data
             await state.recipe.getRecipe();
- 
+
             state.recipe.parseIngredients();
 
             clearLoader();
@@ -117,7 +122,7 @@ const recipeController = async () => {
  */
 const shoppingListController = () => {
     // Create a new list if there isn't one
-    if(!state.shoppingList) state.shoppingList = new ShoppingList();
+    if (!state.shoppingList) state.shoppingList = new ShoppingList();
 
     // Add each ingredient to the list
     state.recipe.parsedIngredients.forEach(ing => {
@@ -135,12 +140,12 @@ const likeController = () => {
 
     // Distinguish between 2 scenarios
     // Is not already liked
-    if(!state.likes.isLiked(currentID)){
+    if (!state.likes.isLiked(currentID)) {
         // Add like to the state
         const newLike = state.likes.addLike(
-            currentID, 
-            state.recipe.title, 
-            state.recipe.author, 
+            currentID,
+            state.recipe.title,
+            state.recipe.author,
             state.recipe.img
         );
 
@@ -150,16 +155,14 @@ const likeController = () => {
         // Add to UI list
         likesView.renderLike(newLike);
 
-    // Is already liked
+        // Is already liked
     } else {
-        console.log('Already liked');
         // Remove like from the state
         state.likes.removeLike(currentID);
         // Toggle like button
         recipeView.toggleLikeBtn(false);
 
         // Remove from the UI list
-        console.log(currentID);
         likesView.deleteLike(currentID);
     }
 
@@ -171,18 +174,47 @@ const likeController = () => {
 // window.addEventListener('load', recipeController);
 ['hashchange', 'load'].forEach(event => window.addEventListener(event, recipeController));
 
+// Restore data on page load
+window.addEventListener('load', () => {
+    // RESTORE SEARCH LIST
+
+    // Check if there's a query in the local storage & create a Search 
+    const query = JSON.parse(localStorage.getItem('search'));
+    if(query)
+        state.search = new Search(query);
+
+    // Call the search controller
+    searchController();
+
+    // RESTORE LIKES LIST
+
+    // Create a likes list
+    state.likes = new Likes();
+
+    // Restore likes from localstorage
+    state.likes.readLikes();
+
+    // Set the likes view state
+    likesView.toggleLikesMenu(state.likes.getNumLikes());
+
+    // Render likes
+    state.likes.likes.forEach(like => {
+        likesView.renderLike(like);
+    });
+});
+
 // Handling delete and update shopping list items
 elements.shoppingList.addEventListener('click', e => {
     const id = e.target.closest('.shopping__item').dataset.itemid;
-    if(e.target.matches('.shopping__delete, .shopping__delete *')) {
+    if (e.target.matches('.shopping__delete, .shopping__delete *')) {
         // Delete from state 
-        if(id) {
+        if (id) {
             state.shoppingList.removeItem(id);
-        // Delete from UI
+            // Delete from UI
             shoppingListView.deleteItem(id);
         }
-    // Handle updating the item weight
-    } else if(e.target.matches('.shopping__count-value')) {
+        // Handle updating the item weight
+    } else if (e.target.matches('.shopping__count-value')) {
         const val = parseFloat(e.target.value, 10);
         state.shoppingList.updateWeight(id, val);
     }
@@ -190,21 +222,21 @@ elements.shoppingList.addEventListener('click', e => {
 
 // Handling recipe button clicks
 elements.recipe.addEventListener('click', e => {
-    if(e.target.matches('.btn-decrease, .btn-decrease *')) {
+    if (e.target.matches('.btn-decrease, .btn-decrease *')) {
         // Decrease serving
         state.recipe.updateServings(-1);
         recipeView.clearRecipe();
         recipeView.renderRecipe(state.recipe);
 
-    } else if(e.target.matches('.btn-increase, .btn-increase *')) {
+    } else if (e.target.matches('.btn-increase, .btn-increase *')) {
         // Increase serving
         state.recipe.updateServings(1);
         recipeView.clearRecipe();
         recipeView.renderRecipe(state.recipe);
-    } else if(e.target.matches('.recipe__btn--add, .recipe__btn--add *')) {
+    } else if (e.target.matches('.recipe__btn--add, .recipe__btn--add *')) {
         // Add ingredients to shopping list
         shoppingListController();
-    } else if(e.target.matches('.recipe__love, .recipe__love *')){
+    } else if (e.target.matches('.recipe__love, .recipe__love *')) {
         // Add to / remove from like list
         likeController();
     }
